@@ -101,7 +101,7 @@ class App extends Component {
       };
     });
 
-    const res = await fetch("https://firebasestorage.googleapis.com/v0/b/cs408e-http.appspot.com/o/install.template.sh?alt=media&token=c5ed6a90-026e-48f3-8345-8528fa5995e0");
+    const res = await fetch("https://firebasestorage.googleapis.com/v0/b/cs408e-http.appspot.com/o/install.template.sh?alt=media&token=ed9568cd-298d-4521-ac65-3c276b2dadda");
     const commandLineTemplate = await res.text();
     const commandLines = commandLineTemplate.replace(/{{VAGRANT_MEMORY}}/g, memory * 1024)
       .replace(/{{VAGRANT_CORE}}/g, core)
