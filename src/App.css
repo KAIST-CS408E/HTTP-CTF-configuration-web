@@ -1,0 +1,8 @@
+.ui.table { border: none !important; }
+.ui.table tr td { border: none !important; }
+.ui.input { width: 100%; }
+.ui.segment.btns { display: flex; flex-flow: row nowap; justify-content: space-between; border: none; }
+.firebase-config { word-break: break-all; }
+img { max-width: 100% !important; }
+.item { margin-bottom: 40px; }
+.item > .image { margin-top: 20px; }
