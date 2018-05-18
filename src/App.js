@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Step, Segment, Input, Label, Table, Container, Button, Icon, Form, TextArea, Divider, Item } from 'semantic-ui-react';
 import * as html2canvas from 'html2canvas';
 import * as jsPDF from 'jspdf';
+import installTemplate from './install.template.sh';
 import 'semantic-ui-css/semantic.min.css';
 import 'lato-font/css/lato-font.css';
 import './App.css';
@@ -101,7 +102,7 @@ class App extends Component {
       };
     });
 
-    const res = await fetch("https://firebasestorage.googleapis.com/v0/b/cs408e-http.appspot.com/o/install.template.sh?alt=media&token=ed9568cd-298d-4521-ac65-3c276b2dadda");
+    const res = await fetch(installTemplate);
     const commandLineTemplate = await res.text();
     const commandLines = commandLineTemplate.replace(/{{VAGRANT_MEMORY}}/g, memory * 1024)
       .replace(/{{VAGRANT_CORE}}/g, core)
