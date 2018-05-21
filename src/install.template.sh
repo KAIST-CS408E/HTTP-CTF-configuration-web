@@ -130,6 +130,7 @@ sudo gitlab-ctl reconfigure
 
 cd \$VAGRANT_HOME/HTTP-CTF/gitlab
 sudo gitlab-rails console production < gitlab-temp-passwd.sh
+sleep 5
 python initialize.py -c config.json
 
 cd \$VAGRANT_HOME/HTTP-CTF/container-creator
