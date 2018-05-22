@@ -144,11 +144,6 @@ cd \$VAGRANT_HOME/HTTP-CTF/dashboard
 nohup sudo python app.py &
 cd \$VAGRANT_HOME/HTTP-CTF/scorebot
 nohup sudo python scorebot.py &
-
-# Remove team config file
-rm \$VAGRANT_HOME/HTTP-CTF/gitlab/config.json
-rm \$VAGRANT_HOME/HTTP-CTF/database/config/teamConfig.json
-rm \$VAGRANT_HOME/HTTP-CTF/dashbaord/config/teamConfig.json
 END
 
 
