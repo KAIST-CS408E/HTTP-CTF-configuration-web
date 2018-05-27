@@ -11,6 +11,7 @@ class App extends Component {
   state = {
     step: 1,
     name: 'Awesome-CTF',
+    domainName: '',
     memory: 4,
     core: 2,
     nRound: 20,
@@ -29,6 +30,7 @@ class App extends Component {
 
   placeholder = {
     name: 'Name for your CTF',
+    domainName: 'your-domain.com',
     memory: 'Memory to use',
     core: 'The number of core to use',
     nRound: 'The number of rounds',
@@ -70,8 +72,9 @@ class App extends Component {
 
   async configure() {
     /* Form Validation */
-    const { name, memory, core, nRound, nRoundTick, apiSecret, mysqlPassword, dockerRegistryPassword, teams, services, firebaseConfig, firebaseAdminSDK } = this.state;
+    const { name, domainName, memory, core, nRound, nRoundTick, apiSecret, mysqlPassword, dockerRegistryPassword, teams, services, firebaseConfig, firebaseAdminSDK } = this.state;
     if (!name) return this.setState({ step: 1 }, () => this.ref.name.focus());
+    if (!domainName) return this.setState({ step: 1 }, () => this.ref.domainName.focus());
     if (!memory) return this.setState({ step: 1 }, () => this.ref.memory.focus());
     if (!nRound) return this.setState({ step: 1 }, () => this.ref.nRound.focus());
     if (!nRoundTick) return this.setState({ step: 1 }, () => this.ref.nRoundTick.focus());
@@ -108,6 +111,7 @@ class App extends Component {
       .replace(/{{VAGRANT_CORE}}/g, core)
       .replace(/{{NUM_SERVICE}}/g, num_services)
       .replace(/{{CTF_NAME}}/g, name)
+      .replace(/{{DOMAIN_NAME}}/g, domainName)
       .replace(/{{SERVICE_NAMES}}/g, JSON.stringify(services))
       .replace(/{{TEAM_NAMES}}/g, JSON.stringify(teamNames))
       .replace(/{{FIREBASE_ADMIN_SDK}}/g, firebaseAdminSDK)
@@ -145,7 +149,7 @@ class App extends Component {
   }
 
   renderStep() {
-    const { step, name, memory, core, nRound, nRoundTick, apiSecret, mysqlPassword, dockerRegistryPassword, teams, services, firebaseConfig, firebaseAdminSDK } = this.state;
+    const { step, name, domainName, memory, core, nRound, nRoundTick, apiSecret, mysqlPassword, dockerRegistryPassword, teams, services, firebaseConfig, firebaseAdminSDK } = this.state;
     switch (step) {
       case 1: return (
         <Table celled selectable>
@@ -158,6 +162,17 @@ class App extends Component {
                   value={name}
                   onChange={e => this.setState({ name: e.target.value.replace(/\s/g, '-') })}
                   ref={n => this.ref.name = n}
+                />
+              </Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell>Domain name of your CTF</Table.Cell>
+              <Table.Cell>
+                <Input
+                  placeholder={this.placeholder.domainName}
+                  value={domainName}
+                  onChange={e => this.setState({ domainName: e.target.value })}
+                  ref={n => this.ref.domainName = n}
                 />
               </Table.Cell>
             </Table.Row>
@@ -629,11 +644,11 @@ class App extends Component {
               />
             ) : (
               <div>
-                <Button
-                  content='Download summary as pdf'
-                  color='black'
-                  onClick={this.printSummary}
-                />
+                {/*<Button*/}
+                  {/*content='Download summary as pdf'*/}
+                  {/*color='black'*/}
+                  {/*onClick={this.printSummary}*/}
+                {/*/>*/}
                 <Button
                   content='Configure'
                   color='blue'
