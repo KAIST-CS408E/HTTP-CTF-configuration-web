@@ -121,19 +121,17 @@ tee \$VAGRANT_HOME/HTTP-CTF/gitlab/config.json << END2
 END2
 
 tee \$VAGRANT_HOME/HTTP-CTF/gitlab/csr_config.json << END2
+[ req ]
+distinguished_name="req_distinguished_name"
+prompt="no"
+
+[ req_distinguished_name ]
 C="KR"
 ST="Daejeon"
 L="KAIST"
 O="{{CTF_NAME}}"
 CN="{{DOMAIN_NAME}}"
 END2
-
-sudo docker run -d -p 5000:5000 --restart=always --name docker-registry \
-  -v /etc/gitlab/ssl:/certs \
-  -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/{{DOMAIN_NAME}}.crt \
-  -e REGISTRY_HTTP_TLS_KEY=/certs/{{DOMAIN_NAME}}.key \
-  registry
-sudo service docker restart
 
 cd \$VAGRANT_HOME/HTTP-CTF/container-creator
 sudo python create_containers.py -sl ../services -c example.json
@@ -145,10 +143,16 @@ sudo python reset_db.py ../container-creator/output/{{CTF_NAME}}/initial_db_stat
 cd \$VAGRANT_HOME/HTTP-CTF/gitlab
 sudo mkdir -p /etc/gitlab/ssl
 sudo openssl req -x509 -newkey rsa:4096 -keyout /etc/gitlab/ssl/{{DOMAIN_NAME}}.key -out /etc/gitlab/ssl/{{DOMAIN_NAME}}.crt -days 365 -nodes -config csr_config.json
+sudo docker run -d -p 5000:5000 --restart=always --name docker-registry \
+  -v /etc/gitlab/ssl:/certs \
+  -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/{{DOMAIN_NAME}}.crt \
+  -e REGISTRY_HTTP_TLS_KEY=/certs/{{DOMAIN_NAME}}.key \
+  registry
+sudo service docker restart
 sudo gitlab-ctl reconfigure
 sudo gitlab-rails console production < gitlab-temp-passwd.sh
 sleep 5
-python initialize.py -c config.json
+sudo python initialize.py -c config.json
 
 cd \$VAGRANT_HOME/HTTP-CTF/container-creator
 sudo docker login --username=root --password=temp_passwd localhost:5000
@@ -161,6 +165,8 @@ cd \$VAGRANT_HOME/HTTP-CTF/dashboard
 nohup sudo python app.py &
 cd \$VAGRANT_HOME/HTTP-CTF/scorebot
 nohup sudo python scorebot.py &
+
+sudo service docker restart
 END
 
 
