@@ -19,8 +19,8 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell" do |s|
     s.inline = "sh vagrant-install.sh"
   end
-  config.vm.network "forwarded_port", guest: 4567, host: 14567 # Docker Registry
-  config.vm.network "forwarded_port", guest: 5001, host: 15001 # Gitlab
+  config.vm.network "forwarded_port", guest: 14567, host: 14567 # Docker Registry
+  config.vm.network "forwarded_port", guest: 15001, host: 15001 # Gitlab
   config.vm.network "forwarded_port", guest: 8000, host: 18000 # CTF Dashboard
 end
 END
@@ -41,7 +41,7 @@ tee \$VAGRANT_HOME/HTTP-CTF/container-creator/example.json << END2
     "sudo": true,
     "teams": {{TEAM_NAMES}},
     "flag_storage_folder": "/flags",
-    "containers_host": "127.0.0.1",
+    "containers_host": "localhost",
     "containers_ports_start" : 10000,
     "round" : {{N_ROUND}}
 }
@@ -91,8 +91,8 @@ DB_HOST = '127.0.0.1:4000'
 DB_SECRET = '{{API_SECRET}}'
 END2
 sudo tee /etc/gitlab/gitlab.rb << END2
-external_url 'http://localhost:5001'
-registry_external_url 'http://localhost:4567'
+external_url 'https://{{DOMAIN_NAME}}:15001'
+registry_external_url 'https://{{DOMAIN_NAME}}:14567'
 registry['notifications'] = [
   {
     'name' => 'Gameserver',
@@ -120,22 +120,39 @@ tee \$VAGRANT_HOME/HTTP-CTF/gitlab/config.json << END2
 }
 END2
 
-cd \$VAGRANT_HOME/HTTP-CTF/container-creator/
+tee \$VAGRANT_HOME/HTTP-CTF/gitlab/csr_config.json << END2
+C="KR"
+ST="Daejeon"
+L="KAIST"
+O="{{CTF_NAME}}"
+CN="{{DOMAIN_NAME}}"
+END2
+
+sudo docker run -d -p 5000:5000 --restart=always --name docker-registry \
+  -v /etc/gitlab/ssl:/certs \
+  -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/{{DOMAIN_NAME}}.crt \
+  -e REGISTRY_HTTP_TLS_KEY=/certs/{{DOMAIN_NAME}}.key \
+  registry
+sudo service docker restart
+
+cd \$VAGRANT_HOME/HTTP-CTF/container-creator
 sudo python create_containers.py -sl ../services -c example.json
 sudo python create_flag_dirs.py -c example.json
 
 cd \$VAGRANT_HOME/HTTP-CTF/database
 sudo python reset_db.py ../container-creator/output/{{CTF_NAME}}/initial_db_state.json
-sudo gitlab-ctl reconfigure
 
 cd \$VAGRANT_HOME/HTTP-CTF/gitlab
+sudo mkdir -p /etc/gitlab/ssl
+sudo openssl req -x509 -newkey rsa:4096 -keyout /etc/gitlab/ssl/{{DOMAIN_NAME}}.key -out /etc/gitlab/ssl/{{DOMAIN_NAME}}.crt -days 365 -nodes -config csr_config.json
+sudo gitlab-ctl reconfigure
 sudo gitlab-rails console production < gitlab-temp-passwd.sh
 sleep 5
 python initialize.py -c config.json
 
 cd \$VAGRANT_HOME/HTTP-CTF/container-creator
 sudo docker login --username=root --password=temp_passwd localhost:5000
-sudo python push_containers.py -sl ../services -c example.json -ds localhost -dpo 5000 -du root -dpass http8804
+sudo python push_containers.py -sl ../services -c example.json -ds localhost -dpo 5000 -du root -dpass temp_passwd
 
 cd \$VAGRANT_HOME/HTTP-CTF/database
 nohup sudo python database_tornado.py &
