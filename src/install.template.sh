@@ -169,16 +169,17 @@ sudo service docker restart
 sudo docker login --username=root --password={{DOCKER_DISTRIBUTION_PASSWORD}} localhost:5000
 sudo python push_containers.py -sl ../services -c example.json -ds localhost -dpo 5000 -du root -dpass {{DOCKER_DISTRIBUTION_PASSWORD}}
 
+sudo mkdir \$VAGRANT_HOME/HTTP-CTF/logs
 cd \$VAGRANT_HOME/HTTP-CTF/database
-nohup sudo python database_tornado.py &
-sleep 30
-nohup sudo python gamebot.py &
-sleep 30
+nohup sudo python database_tornado.py > \$VAGRANT_HOME/HTTP-CTF/logs/database.out &
+sleep 60
+nohup sudo python gamebot.py > \$VAGRANT_HOME/HTTP-CTF/logs/gamebot.out &
+sleep 60
 cd \$VAGRANT_HOME/HTTP-CTF/dashboard
-nohup sudo python app.py &
-sleep 30
+nohup sudo python app.py > \$VAGRANT_HOME/HTTP-CTF/logs/app.out &
+sleep 60
 cd \$VAGRANT_HOME/HTTP-CTF/scorebot
-nohup sudo python scorebot.py &
+nohup sudo python scorebot.py > \$VAGRANT_HOME/HTTP-CTF/logs/scorebot.out &
 
 sudo service docker restart
 END
