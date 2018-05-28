@@ -78,7 +78,7 @@ MYSQL_DATABASE_PASSWORD = "{{MYSQL_DATABASE_PASSWORD}}"
 MYSQL_DATABASE_DB = "ctf"
 DOCKER_DISTRIBUTION_SERVER = "localhost:5000"
 DOCKER_DISTRIBUTION_USER = "root"
-DOCKER_DISTRIBUTION_PASS = "http8804"
+DOCKER_DISTRIBUTION_PASS = "{{DOCKER_DISTRIBUTION_PASSWORD}}"
 DOCKER_DISTRIBUTION_EMAIL = "hobincar@kaist.ac.kr"
 REMOTE_DOCKER_DAEMON_PORT = 2375
 TICK_TIME_IN_SECONDS = {{N_ROUND_TICK}}
@@ -111,6 +111,17 @@ tee \$VAGRANT_HOME/HTTP-CTF/database/config/teamConfig.json << END2
 {
     "teams": {{TEAM_NAME_PASSWORDS}}
 }
+END2
+
+tee \$VAGRANT_HOME/HTTP-CTF/gitlab/setting.py << END2
+DOCKER_DISTRIBUTION_PASSWORD = '{{DOCKER_DISTRIBUTION_PASSWORD}}'
+END2
+
+tee \$VAGRANT_HOME/HTTP-CTF/gitlab/gitlab-temp-passwd.sh << END2
+user = User.where(id: 1).first
+user.password = '{{DOCKER_DISTRIBUTION_PASSWORD}}'
+user.password_confirmation = '{{DOCKER_DISTRIBUTION_PASSWORD}}'
+user.save!
 END2
 
 tee \$VAGRANT_HOME/HTTP-CTF/gitlab/config.json << END2
@@ -155,8 +166,8 @@ sudo docker run -d -p 5000:5000 --restart=always --name docker-registry \
   -e REGISTRY_HTTP_TLS_KEY=/certs/{{DOMAIN_NAME}}.key \
   registry
 sudo service docker restart
-sudo docker login --username=root --password=temp_passwd localhost:5000
-sudo python push_containers.py -sl ../services -c example.json -ds localhost -dpo 5000 -du root -dpass temp_passwd
+sudo docker login --username=root --password={{DOCKER_DISTRIBUTION_PASSWORD}} localhost:5000
+sudo python push_containers.py -sl ../services -c example.json -ds localhost -dpo 5000 -du root -dpass {{DOCKER_DISTRIBUTION_PASSWORD}}
 
 cd \$VAGRANT_HOME/HTTP-CTF/database
 nohup sudo python database_tornado.py &
