@@ -143,26 +143,29 @@ sudo python reset_db.py ../container-creator/output/{{CTF_NAME}}/initial_db_stat
 cd \$VAGRANT_HOME/HTTP-CTF/gitlab
 sudo mkdir -p /etc/gitlab/ssl
 sudo openssl req -x509 -newkey rsa:4096 -keyout /etc/gitlab/ssl/{{DOMAIN_NAME}}.key -out /etc/gitlab/ssl/{{DOMAIN_NAME}}.crt -days 365 -nodes -config csr_config.json
-sudo docker run -d -p 5000:5000 --restart=always --name docker-registry \
-  -v /etc/gitlab/ssl:/certs \
-  -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/{{DOMAIN_NAME}}.crt \
-  -e REGISTRY_HTTP_TLS_KEY=/certs/{{DOMAIN_NAME}}.key \
-  registry
-sudo service docker restart
 sudo gitlab-ctl reconfigure
 sudo gitlab-rails console production < gitlab-temp-passwd.sh
 sleep 5
 sudo python initialize.py -c config.json
 
 cd \$VAGRANT_HOME/HTTP-CTF/container-creator
+sudo docker run -d -p 5000:5000 --restart=always --name docker-registry \
+  -v /etc/gitlab/ssl:/certs \
+  -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/{{DOMAIN_NAME}}.crt \
+  -e REGISTRY_HTTP_TLS_KEY=/certs/{{DOMAIN_NAME}}.key \
+  registry
+sudo service docker restart
 sudo docker login --username=root --password=temp_passwd localhost:5000
 sudo python push_containers.py -sl ../services -c example.json -ds localhost -dpo 5000 -du root -dpass temp_passwd
 
 cd \$VAGRANT_HOME/HTTP-CTF/database
 nohup sudo python database_tornado.py &
+sleep 30
 nohup sudo python gamebot.py &
+sleep 30
 cd \$VAGRANT_HOME/HTTP-CTF/dashboard
 nohup sudo python app.py &
+sleep 30
 cd \$VAGRANT_HOME/HTTP-CTF/scorebot
 nohup sudo python scorebot.py &
 
