@@ -172,7 +172,7 @@ sudo python push_containers.py -sl ../services -c example.json -ds localhost -dp
 sudo mkdir \$VAGRANT_HOME/HTTP-CTF/logs
 cd \$VAGRANT_HOME/HTTP-CTF/database
 nohup sudo python database_tornado.py > \$VAGRANT_HOME/HTTP-CTF/logs/database.out &
-sleep 60
+sleep 120
 nohup sudo python gamebot.py > \$VAGRANT_HOME/HTTP-CTF/logs/gamebot.out &
 sleep 60
 cd \$VAGRANT_HOME/HTTP-CTF/dashboard
