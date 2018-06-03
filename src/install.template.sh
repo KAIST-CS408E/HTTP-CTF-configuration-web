@@ -180,8 +180,6 @@ nohup sudo python app.py > \$VAGRANT_HOME/HTTP-CTF/logs/app.out &
 sleep 60
 cd \$VAGRANT_HOME/HTTP-CTF/scorebot
 nohup sudo python scorebot.py > \$VAGRANT_HOME/HTTP-CTF/logs/scorebot.out &
-
-sudo service docker restart
 END
 
 
